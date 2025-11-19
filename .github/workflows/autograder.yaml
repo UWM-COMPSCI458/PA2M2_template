@@ -1,0 +1,77 @@
+name: Autograding Tests
+on:
+  - push
+  - workflow_dispatch
+  - repository_dispatch
+permissions:
+  checks: write
+  actions: read
+  contents: read
+jobs:
+  run-autograding-tests:
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-classroom[bot]'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Make build environment
+      run: mkdir -p build/out
+
+    - name: Run CMake
+      run: cmake -D CMAKE_RUNTIME_OUTPUT_DIRECTORY=./out/ ..
+      working-directory: ./build/
+
+    - name: Build project
+      run: make
+      working-directory: ./build/
+
+    - name: Move executable
+      run: mv build/out/$(ls build/out | head -n 1) ./submission
+
+    - name: Get test files
+      run: |
+        wget https://raw.githubusercontent.com/UWM-COMPSCI458/PA2M2_grader/refs/heads/main/tester.sh
+        wget https://raw.githubusercontent.com/UWM-COMPSCI458/PA2M2_grader/refs/heads/main/test1.asm
+        wget https://raw.githubusercontent.com/UWM-COMPSCI458/PA2M2_grader/refs/heads/main/test1.text
+        wget https://raw.githubusercontent.com/UWM-COMPSCI458/PA2M2_grader/refs/heads/main/test1.data
+        wget https://raw.githubusercontent.com/UWM-COMPSCI458/PA2M2_grader/refs/heads/main/test1.out
+        wget https://raw.githubusercontent.com/UWM-COMPSCI458/PA2M2_grader/refs/heads/main/test1.in
+        wget https://raw.githubusercontent.com/UWM-COMPSCI458/PA2M2_grader/refs/heads/main/test2.asm
+        wget https://raw.githubusercontent.com/UWM-COMPSCI458/PA2M2_grader/refs/heads/main/test2.text
+        wget https://raw.githubusercontent.com/UWM-COMPSCI458/PA2M2_grader/refs/heads/main/test2.data
+        wget https://raw.githubusercontent.com/UWM-COMPSCI458/PA2M2_grader/refs/heads/main/test2.out
+        wget https://raw.githubusercontent.com/UWM-COMPSCI458/PA2M2_grader/refs/heads/main/test2.in
+        wget https://raw.githubusercontent.com/UWM-COMPSCI458/PA2M2_grader/refs/heads/main/test3.asm
+        wget https://raw.githubusercontent.com/UWM-COMPSCI458/PA2M2_grader/refs/heads/main/test3.text
+        wget https://raw.githubusercontent.com/UWM-COMPSCI458/PA2M2_grader/refs/heads/main/test3.data
+        wget https://raw.githubusercontent.com/UWM-COMPSCI458/PA2M2_grader/refs/heads/main/test3.out
+        wget https://raw.githubusercontent.com/UWM-COMPSCI458/PA2M2_grader/refs/heads/main/test3.in
+        wget https://raw.githubusercontent.com/UWM-COMPSCI458/PA2M2_grader/refs/heads/main/test4.asm
+        wget https://raw.githubusercontent.com/UWM-COMPSCI458/PA2M2_grader/refs/heads/main/test4.text
+        wget https://raw.githubusercontent.com/UWM-COMPSCI458/PA2M2_grader/refs/heads/main/test4.data
+        wget https://raw.githubusercontent.com/UWM-COMPSCI458/PA2M2_grader/refs/heads/main/test4.out
+        wget https://raw.githubusercontent.com/UWM-COMPSCI458/PA2M2_grader/refs/heads/main/test4.in
+        wget https://raw.githubusercontent.com/UWM-COMPSCI458/PA2M2_grader/refs/heads/main/test5.asm
+        wget https://raw.githubusercontent.com/UWM-COMPSCI458/PA2M2_grader/refs/heads/main/test5.text
+        wget https://raw.githubusercontent.com/UWM-COMPSCI458/PA2M2_grader/refs/heads/main/test5.data
+        wget https://raw.githubusercontent.com/UWM-COMPSCI458/PA2M2_grader/refs/heads/main/test5.out
+        wget https://raw.githubusercontent.com/UWM-COMPSCI458/PA2M2_grader/refs/heads/main/test5.in
+        wget https://raw.githubusercontent.com/UWM-COMPSCI458/PA2M2_grader/refs/heads/main/test6.asm
+        wget https://raw.githubusercontent.com/UWM-COMPSCI458/PA2M2_grader/refs/heads/main/test6.text
+        wget https://raw.githubusercontent.com/UWM-COMPSCI458/PA2M2_grader/refs/heads/main/test6.data
+        wget https://raw.githubusercontent.com/UWM-COMPSCI458/PA2M2_grader/refs/heads/main/test6.out
+        wget https://raw.githubusercontent.com/UWM-COMPSCI458/PA2M2_grader/refs/heads/main/test6.in
+        
+
+    - name: Run tests
+      uses: UWM-COMPSCI458/autograding-command-grader@main
+      id: pa2m2-tests
+      continue-on-error: true
+      with:
+        test-name: PA2M2 Tests
+        command: "bash"
+        arguments: '["./tester.sh", "./submission"]'
+        timeout: 10
+        max-score: 100
